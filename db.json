@@ -1,0 +1,47 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Example Title",
+      "description": "Example Description",
+      "deadline": "01/01/22",
+      "priority": "med",
+      "isComplete": false
+    },
+    {
+      "id": 2,
+      "title": "Example Title 2",
+      "description": "Example Description 2",
+      "deadline": "12/25/22",
+      "priority": "high",
+      "isComplete": true
+    },
+    {
+      "title": "Test",
+      "description": "A",
+      "deadline": "2022-11-10",
+      "priority": "2",
+      "isComplete": false,
+      "editing": false,
+      "id": 10
+    },
+    {
+      "title": "Some Task!",
+      "description": "Task Descriptoinsdf",
+      "deadline": "2022-11-03",
+      "priority": "2",
+      "isComplete": false,
+      "editing": false,
+      "id": 11
+    },
+    {
+      "title": "Testings",
+      "description": "SAda",
+      "deadline": "2022-11-02",
+      "priority": "3",
+      "isComplete": false,
+      "editing": false,
+      "id": 12
+    }
+  ]
+}
