@@ -3,7 +3,10 @@
     <label for="input">{{ label }}</label>
     <input
       :type="type"
-      :class="type === 'range' ? 'form-range' : 'form-control'"
+      :class="[
+        type === 'range' ? 'form-range' : 'form-control',
+        this.modelValue == '' ? 'is-invalid' : '',
+      ]"
       id="input"
       :aria-describedby="description"
       :placeholder="placeholder"
@@ -41,3 +44,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.is-invalid {
+  border-color: red;
+}
+</style>

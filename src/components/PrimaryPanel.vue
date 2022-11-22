@@ -3,12 +3,12 @@
     <div>
       <div class="panel panel-primary">
         <div class="panel-heading">
-          Panel with panel-primary class
+          <h1>Framework Task Table</h1>
           <Button
-            class="button"
+            class="button glyphicon glyphicon-plus"
             @btn-click="openModelAdd"
-            text="Add New Task"
-          />
+            text="      Add New Task"
+          ></Button>
 
           <TaskEditorModal
             v-if="showEditorModal"
@@ -23,6 +23,9 @@
               @interface="getEditorInterface"
               @emittedSubmit="modalSubmit"
               :isActive="showEditorModal"
+              :task="taskToEdit"
+              @toggleModal="toggleModal"
+              :tasks="tasks"
             />
           </TaskEditorModal>
         </div>
@@ -31,8 +34,18 @@
             :tasks="tasks"
             @editClick="openModalEdit"
             @deleteClick="deleteTask"
+            @updateIsComplete="updateIsComplete"
           />
         </div>
+      </div>
+    </div>
+    <div v-if="showToast" class="panel panel-success">
+      <div class="panel-heading">
+        <transition name="toast">
+          <Toast>
+            {{ toastMessage }}
+          </Toast>
+        </transition>
       </div>
     </div>
   </div>
@@ -44,6 +57,7 @@ import TaskTable from "./TaskTable.vue";
 import Button from "./Button.vue";
 import TaskEditorModal from "./TaskEditorModal.vue";
 import TaskEditor from "./TaskEditor.vue";
+import Toast from "./Toast.vue";
 
 export default defineComponent({
   name: "PrimaryPanel",
@@ -56,6 +70,9 @@ export default defineComponent({
       showEditorModal: false,
       editing: false, //if not editing, then adding.
       editingTaskId: -1, //default to -1.
+      taskToEdit: {},
+      toastMessage: "defaultToastMessage",
+      showToast: false,
     };
   },
   props: {},
@@ -66,6 +83,10 @@ export default defineComponent({
     TaskEditor,
   },
   methods: {
+    updateIsComplete(task) {
+      task.isComplete = !task.isComplete;
+      this.modifyTask(task);
+    },
     getEditorInterface(editorInterface) {
       this.$options.editorInterface = editorInterface;
     },
@@ -77,26 +98,28 @@ export default defineComponent({
       this.editingTaskId = -1;
       this.toggleModal();
     },
-    openModalEdit(id) {
+    async openModalEdit(id) {
       console.log("PrimaryPanel editClick");
       this.editing = true;
       this.editingTaskId = id;
-      this.$options.editorInterface.importFromExistingTask(
-        this.tasks.find((task) => task.id === id)
-      );
+      console.log("ABC");
+      this.taskToEdit = await this.fetchTask(id);
       this.toggleModal();
     },
     modalSubmit(object) {
       console.log(object);
       //Determine whether to update or create.
       if (object.editing === true) {
+        console.log("Updating task");
         //safety check:
         if (object.id === -1) {
           console.log("Error: Editing task with id -1.");
           console.log(object);
         }
+        this.modifyTask(object);
         //Update
       } else {
+        console.log("Creating task");
         //Create
         //Assign an id
         delete object["id"];
@@ -125,6 +148,7 @@ export default defineComponent({
       const data = await response.json();
 
       this.tasks = [...this.tasks, data];
+      this.triggerToast("Task added.");
     },
     async deleteTask(id) {
       console.log("PPanel delclick " + id);
@@ -135,18 +159,59 @@ export default defineComponent({
         res.status === 200
           ? (this.tasks = this.tasks.filter((task) => task.id !== id))
           : alert("Error Deleting This Task");
+        if(res.status === 200){
+          this.triggerToast("Task deleted.");
+        }
       }
+      
+    },
+    async modifyTask(task) {
+      const res = await fetch(`api/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(task),
+      });
+
+      const data = await res.json();
+
+      this.tasks = this.tasks.map((task) =>
+        task.id === data.id ? { ...task, ...data } : task
+      );
+      this.triggerToast("Task updated.");
+    },
+    triggerToast(toastMessage) {
+      this.showToast = true;
+      this.toastMessage = toastMessage;
+      setTimeout(() => {
+        this.showToast = false;
+      }, 3000);
     },
   },
-
-  async created() {
+  async mounted() {
     this.tasks = await this.fetchTasks();
   },
 });
 </script>
 <style scoped>
 .button {
+  position: fixed;
+  top: 90px;
+  right: 100px;
   float: right;
   color: white;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+.toast-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast-enter-active {
+  transition: all 0.5s;
 }
 </style>

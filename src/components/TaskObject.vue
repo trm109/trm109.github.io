@@ -5,10 +5,19 @@
   <td>
     {{ task.priority == 1 ? "low" : task.priority == 2 ? "med" : "high" }}
   </td>
-  <td>{{ task.isComplete }}</td>
+  <td>
+    {{ task.isComplete }}
+    <input
+      type="checkbox"
+      id="isCompelete"
+      name="isComplete"
+      :checked="task.isComplete"
+      @change="updateIsComplete"
+    />
+  </td>
   <!-- Convert to checkbox. -->
   <td style="display: block">
-    <button class="btn btn-primary" @click="editClick">Update</button>
+    <button v-show="!this.task.isComplete" class="btn btn-primary" @click="editClick">Update</button>
     <button class="btn btn-danger" @click="deleteClick">Delete</button>
   </td>
 </template>
@@ -31,7 +40,7 @@ export default {
     },
     updateIsComplete() {
       console.log("updateIsComplete");
-      this.$emit("updateIsCompleteOrigin", this.id);
+      this.$emit("updateIsCompleteOrigin", this.task);
     },
   },
 };

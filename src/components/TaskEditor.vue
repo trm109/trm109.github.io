@@ -1,11 +1,12 @@
 <template>
-  <form @submit="onSubmit" class="add-form">
+  <form @submit.prevent="onSubmit" class="add-form">
     <div class="debug-label">
       <p>
         {{ id }}
       </p>
     </div>
     <FormInput
+      id="title-input"
       label="Task Title"
       type="text"
       :value="titleValue"
@@ -14,6 +15,7 @@
       v-model="title"
     />
     <FormInput
+      id="description-input"
       label="Task Description"
       type="text"
       :value="descValue"
@@ -22,6 +24,7 @@
       v-model="description"
     />
     <FormInput
+      id="deadline-input"
       label="Task Deadline"
       type="date"
       :value="deadlineValue"
@@ -30,6 +33,7 @@
       v-model="deadline"
     />
     <FormInput
+      id="priority-input"
       label="Task Priority"
       type="range"
       :value="rangeValue"
@@ -38,26 +42,41 @@
       max="3"
       v-model="priority"
     />
-    <Button :text="editing ? 'Change' : 'Add'" @btn-click="debugPrint()" />
-    <button class="modal-submit" @click="modalSubmit()">Submit</button>
+    <button class="modal-submit" @click="modalSubmit()">
+      <span
+        v-bind:class="[this.editing ? 'glyphicon glyphicon-pencil' : 'glyphicon glyphicon-plus']"
+      ></span>
+      {{ this.editing ? "Edit" : "Add" }}
+    </button>
   </form>
 </template>
+
 <script>
 import Button from "./Button.vue";
 import FormInput from "./FormInput.vue";
 export default {
   created() {
+    console.log("TaskEditor created: ");
+    console.log(this.task);
+    if (this.editing) {
+      this.title = this.task.title;
+      this.description = this.task.description;
+      this.deadline = this.task.deadline;
+      this.priority = this.task.priority;
+      this.isComplete = this.task.isComplete;
+    }
     this.emitInterface();
   },
   expose: ["importFromExistingTask"],
   name: "TaskEditor",
   components: {
-    Button,
     FormInput,
   },
   props: {
     editing: Boolean,
     id: Number,
+    task: Object,
+    tasks: Array,
   },
   data() {
     return {
@@ -66,9 +85,9 @@ export default {
       deadline: "",
       priority: "1",
       isComplete: false,
-      titleValue: "",
-      descValue: "",
-      deadlineValue: "",
+      titleValue: "dasda",
+      descValue: "ddd",
+      deadlineValue: "eee",
       rangeValue: 1,
       isActive: false,
     };
@@ -80,7 +99,7 @@ export default {
       });
     },
     importFromExistingTask() {
-      console.log("Run");
+      console.log("DEF");
       if (this.editing == true) {
         const taskToImport = this.fetchTask(this.id);
         this.title = taskToImport.title;
@@ -98,15 +117,28 @@ export default {
     },
     modalSubmit() {
       console.log("submit");
-      this.$emit("emittedSubmit", {
-        id: this.id,
-        title: this.title,
-        description: this.description,
-        deadline: this.deadline,
-        priority: this.priority,
-        isComplete: this.isComplete,
-        editing: this.editing,
-      });
+      //check if a task.title in tasks has the same title as the one being added.
+      for (let i = 0; i < this.tasks.length; i++) {
+        if (this.tasks[i].title == this.title) {
+          alert("Task with same title already exists.");
+          return;
+        }
+      }
+      if (this.title != "" && this.description != "" && this.deadline != "") {
+        this.$emit("emittedSubmit", {
+          id: this.id,
+          title: this.title,
+          description: this.description,
+          deadline: this.deadline,
+          priority: this.priority,
+          isComplete: this.isComplete,
+          editing: this.editing,
+        });
+        this.$emit("toggleModal");
+      } else {
+        alert("Please fill out all fields");
+      }
+      //close the modal.
     },
     async fetchTask(id) {
       const response = await fetch(`api/tasks/${id}`);

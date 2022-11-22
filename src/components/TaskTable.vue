@@ -47,9 +47,9 @@ export default defineComponent({
       console.log("TTable delclick");
       this.$emit("deleteClick", id);
     },
-    updateIsComplete(id) {
+    updateIsComplete(task) {
       console.log("updateIsComplete");
-      this.$emit("updateIsComplete", id);
+      this.$emit("updateIsComplete", task);
     },
   },
 });

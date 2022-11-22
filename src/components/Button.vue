@@ -26,3 +26,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+button{
+  font-family: Arial, Helvetica, sans-serif;
+}
+</style>

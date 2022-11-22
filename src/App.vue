@@ -1,6 +1,4 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
   <div v-show="showTaskEditor">
     <TaskEditor />
   </div>
@@ -13,6 +11,8 @@ import { ref } from "vue";
 import HelloWorld from "./components/HelloWorld.vue";
 import PrimaryPanel from "./components/PrimaryPanel.vue";
 import TaskEditor from "./components/TaskEditor.vue";
+
+
 export default defineComponent({
   name: "App",
   components: {
@@ -21,7 +21,12 @@ export default defineComponent({
     TaskEditor,
   },
   data() {
-    return {};
+    return {
+      showTaskEditor: false,
+    };
+  },
+  created() {
+    console.log("App created");
   },
 });
 </script>
